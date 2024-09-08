@@ -7,6 +7,7 @@ const SteganographyApp = () => {
   const [encodedImageBlob, setEncodedImageBlob] = useState(null);
   const [decodedMessage, setDecodedMessage] = useState('');
   const [error, setError] = useState('');
+  const [disabled, setDisabled] = useState(false);
 
   const handleFileRead = (file, onLoad) => {
     const reader = new FileReader();
@@ -94,8 +95,16 @@ const SteganographyApp = () => {
 
           try {
             const message = decodeMessageFromImage(imageData);
-            setDecodedMessage(message);
-            setError('');
+            const cleanedStr = message.replace(/\s+/g, '');
+            const base64Regex = /^[A-Za-z0-9+/=]+$/;
+            if(base64Regex.test(cleanedStr)){
+              setDecodedMessage(message);
+              setError('');
+            }
+            else{
+              setError("Message not found");
+            }
+            
           } catch (e) {
             console.error('Decoding error:', e.message);
             setError('Error decoding message from image.');
@@ -116,7 +125,7 @@ const SteganographyApp = () => {
     if (encodedImageBlob) {
       const link = document.createElement('a');
       link.href = URL.createObjectURL(encodedImageBlob);
-      link.download = 'encoded-image.png';
+      link.download = "fingerprint.png";
       link.click();
     } else {
       setError('No encoded image available for download.');
@@ -128,9 +137,12 @@ const SteganographyApp = () => {
       <h1>Steganography App</h1>
 
       <div>
-        <h2>Upload and Encode Image</h2>
-        <input type='text' onChange={e => setHiddenMessage(e.target.value)} value={hiddenMessage}/>
-        <input type="file" accept="image/*" onChange={handleImageUpload} />
+        {!disabled && <h2>Hidden Message</h2>}
+        {!disabled && <input type='text' onChange={e => setHiddenMessage(e.target.value)} value={hiddenMessage}/>}
+        {(!disabled && hiddenMessage.length > 0) && <button onClick={() => setDisabled(true)}>Submit</button>}
+        {disabled && <h2><span style={{ fontWeight: "normal" }}>Hidden Message: </span>{hiddenMessage}</h2>}
+        {(hiddenMessage && disabled) && <h2>Upload and Encode Image</h2>}
+        {(hiddenMessage && disabled) && <input type="file" accept="image/*" onChange={handleImageUpload} />}
         {error && <p style={{ color: 'red' }}>{error}</p>}
         {encodedImageUrl && (
           <div>

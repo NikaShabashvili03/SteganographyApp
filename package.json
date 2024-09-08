@@ -17,6 +17,7 @@
     "react-dropzone": "^14.2.3",
     "react-qr-code": "^2.0.15",
     "react-scripts": "5.0.1",
+    "svg.js": "^2.7.1",
     "swr": "^2.2.5",
     "tesseract.js": "^5.1.1",
     "web-vitals": "^2.1.4"
